@@ -27,4 +27,4 @@ jobs:
           go-version: 1.19
 
       # 実行
-      - run: go run ./main.go
+      - run: go run ./tools/dagger.go
