@@ -35,8 +35,8 @@ func build(ctx context.Context) error {
 	golang = golang.WithMountedDirectory("/src", src).WithWorkdir("/src")
 
 	// ビルドコマンドを実行
-	golang = golang.WithExec([]string{"go", "install", "github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.1"})
-	golang = golang.WithExec([]string{"golangci-lint", "run", "./..."})
+	// golang = golang.WithExec([]string{"go", "install", "github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.1"})
+	// golang = golang.WithExec([]string{"golangci-lint", "run", "./..."})
 	golang = golang.WithExec([]string{"go", "test", "-v", "./..."})
 
 	// path := "./build"
