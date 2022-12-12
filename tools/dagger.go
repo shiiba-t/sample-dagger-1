@@ -57,5 +57,6 @@ func build(ctx context.Context) error {
 	// 	return err
 	// }
 
-	return errors.New("err")
+	panic(errors.New("err"))
+	// return errors.New("err")
 }
