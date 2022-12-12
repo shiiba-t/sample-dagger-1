@@ -17,10 +17,6 @@ func main() {
 func build(ctx context.Context) error {
 	fmt.Println("Building with Dagger")
 
-	if true {
-
-	}
-
 	// Daggerクライアントの作成
 	client, err := dagger.Connect(ctx, dagger.WithLogOutput(os.Stdout))
 	if err != nil {
@@ -33,12 +29,6 @@ func build(ctx context.Context) error {
 
 	// Goの最新Verのコンテナイメージを取得
 	golang := client.Container().From("golang:latest")
-	// _, err = golang.Exec(dagger.ContainerExecOpts{
-	// 	Args: []string{"go", "install", "github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.1"},
-	// }).Stdout(ctx)
-	// if err != nil {
-	// 	panic(err)
-	// }
 
 	// コンテナ内のsrcディレクトリへマウント
 	// srcディレクトリをワークディレクトリに設定
@@ -48,7 +38,7 @@ func build(ctx context.Context) error {
 	path := "build/"
 	golang = golang.WithExec([]string{"go", "install", "github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.1"})
 	golang = golang.WithExec([]string{"golangci-lint", "run", "./..."})
-	// golang = golang.WithExec([]string{"go", "test", "-v", "./..."})
+	golang = golang.WithExec([]string{"go", "test", "-v", "./..."})
 	// golang = golang.WithExec([]string{"go", "build", "-o", path})
 
 	// コンテナ内のbuildディレクトリへの参照を取得
