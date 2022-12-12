@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 
@@ -12,6 +13,7 @@ func main() {
 	if err := build(context.Background()); err != nil {
 		fmt.Println(err)
 	}
+	fmt.Println("Finish!!")
 }
 
 func build(ctx context.Context) error {
@@ -55,5 +57,5 @@ func build(ctx context.Context) error {
 	// 	return err
 	// }
 
-	return nil
+	return errors.New("err")
 }
