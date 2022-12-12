@@ -1,4 +1,4 @@
-name: build
+name: CI
 
 # イベントトリガーの設定
 on:
@@ -10,12 +10,11 @@ on:
   pull_request:
 
 jobs:
-  build:
+  ci:
     # 実行環境の構築
     runs-on: ubuntu-latest
 
-    # タスクの実行
-    name: Build
+    name: CI
     steps:
       # レポジトリからソースコードを取得する
       - name: Checkout
@@ -27,4 +26,5 @@ jobs:
         with:
           go-version: 1.19
 
+      # 実行
       - run: go run ./main.go

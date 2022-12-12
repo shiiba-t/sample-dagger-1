@@ -17,51 +17,48 @@ func main() {
 func build(ctx context.Context) error {
 	fmt.Println("Building with Dagger")
 
-	// define build matrix
-	oses := []string{"linux", "darwin"}
-	arches := []string{"amd64", "arm64"}
-	goVersions := []string{"1.18", "1.19"}
+	if true {
 
-	// initialize Dagger client
+	}
+
+	// Daggerクライアントの作成
 	client, err := dagger.Connect(ctx, dagger.WithLogOutput(os.Stdout))
 	if err != nil {
 		return err
 	}
 	defer client.Close()
 
-	// get reference to the local project
+	// ホストのカレントディレクトリへの参照を取得
 	src := client.Host().Directory(".")
 
-	// create empty directory to put build outputs
-	outputs := client.Directory()
+	// Goの最新Verのコンテナイメージを取得
+	golang := client.Container().From("golang:latest")
+	// _, err = golang.Exec(dagger.ContainerExecOpts{
+	// 	Args: []string{"go", "install", "github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.1"},
+	// }).Stdout(ctx)
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	for _, version := range goVersions {
-		// get `golang` image for specified Go version
-		imageTag := fmt.Sprintf("golang:%s", version)
-		golang := client.Container().From(imageTag)
-		// mount cloned repository into `golang` image
-		golang = golang.WithMountedDirectory("/src", src).WithWorkdir("/src")
+	// コンテナ内のsrcディレクトリへマウント
+	// srcディレクトリをワークディレクトリに設定
+	golang = golang.WithMountedDirectory("/src", src).WithWorkdir("/src")
 
-		for _, goos := range oses {
-			for _, goarch := range arches {
-				// create a directory for each os, arch and version
-				path := fmt.Sprintf("build/%s/%s/%s/", version, goos, goarch)
-				// set GOARCH and GOOS in the build environment
-				build := golang.WithEnvVariable("GOOS", goos)
-				build = build.WithEnvVariable("GOARCH", goarch)
+	// ビルドコマンドを実行
+	path := "build/"
+	golang = golang.WithExec([]string{"go", "install", "github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.1"})
+	golang = golang.WithExec([]string{"golangci-lint", "run", "./..."})
+	// golang = golang.WithExec([]string{"go", "test", "-v", "./..."})
+	// golang = golang.WithExec([]string{"go", "build", "-o", path})
 
-				// build application
-				build = build.WithExec([]string{"go", "build", "-o", path})
+	// コンテナ内のbuildディレクトリへの参照を取得
+	output := golang.Directory(path)
 
-				// get reference to build output directory in container
-				outputs = outputs.WithDirectory(path, build.Directory(path))
-			}
-		}
-	}
-	// write build artifacts to host
-	_, err = outputs.Export(ctx, ".")
+	// コンテナからホストへbuildディレクトリの内容を書き込む
+	_, err = output.Export(ctx, path)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
