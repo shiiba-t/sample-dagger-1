@@ -1,0 +1,30 @@
+name: build
+
+# イベントトリガーの設定
+on:
+  # メインブランチへプッシュしたときに実行
+  push:
+    branches:
+      - master
+  # プルリクエストした時に実行
+  pull_request:
+
+jobs:
+  build:
+    # 実行環境の構築
+    runs-on: ubuntu-latest
+
+    # タスクの実行
+    name: Build
+    steps:
+      # レポジトリからソースコードを取得する
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Goの実行環境を準備する
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+
+      - run: go run ./main.go
