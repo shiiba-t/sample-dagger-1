@@ -14,7 +14,7 @@ func Test_sum(t *testing.T) {
 	}{
 		{
 			name: "Success",
-			args: args{1, 2},
+			args: args{1, 3},
 			want: 3,
 		},
 	}
