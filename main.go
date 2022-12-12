@@ -1,54 +1,11 @@
 package main
 
-import (
-	"context"
-	"fmt"
-	"os"
-
-	"dagger.io/dagger"
-)
+import "fmt"
 
 func main() {
-	if err := build(context.Background()); err != nil {
-		fmt.Println(err)
-	}
+	fmt.Printf("Sum: 1 + 2 = %d\n", sum(1, 2))
 }
 
-func build(ctx context.Context) error {
-	fmt.Println("Building with Dagger")
-
-	// Daggerクライアントの作成
-	client, err := dagger.Connect(ctx, dagger.WithLogOutput(os.Stdout))
-	if err != nil {
-		return err
-	}
-	defer client.Close()
-
-	// ホストのカレントディレクトリへの参照を取得
-	src := client.Host().Directory(".")
-
-	// Goの最新Verのコンテナイメージを取得
-	golang := client.Container().From("golang:latest")
-
-	// コンテナ内のsrcディレクトリへマウント
-	// srcディレクトリをワークディレクトリに設定
-	golang = golang.WithMountedDirectory("/src", src).WithWorkdir("/src")
-
-	// ビルドコマンドを実行
-	path := "build/"
-	golang = golang.WithExec([]string{"go", "install", "github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.1"})
-	golang = golang.WithExec([]string{"golangci-lint", "run", "./..."})
-	golang = golang.WithExec([]string{"go", "test", "-v", "./..."})
-	// golang = golang.WithExec([]string{"go", "build", "-o", path})
-
-	// コンテナ内のbuildディレクトリへの参照を取得
-	output := golang.Directory(path)
-
-	// コンテナからホストへbuildディレクトリの内容を書き込む
-	_, err = output.Export(ctx, path)
-	if err != nil {
-		return err
-	}
-
-	return nil
+func sum(a, b int64) int64 {
+	return a + b
 }
