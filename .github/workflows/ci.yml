@@ -1,0 +1,44 @@
+name: CI
+
+# イベントトリガーの設定
+on:
+  # メインブランチへプッシュしたときに実行
+  push:
+    branches:
+      - main
+  # プルリクエストした時に実行
+  pull_request:
+
+# 実行するジョブの設定
+jobs:
+  test:
+    # 実行環境の構築
+    runs-on: ubuntu-latest
+
+    # タスクの実行
+    name: Lint & Test
+    steps:
+      # レポジトリからソースコードを取得する
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Goの実行環境を準備する
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          # 実行するgoのバージョンを指定する
+          go-version: '1.17.12'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libasound2-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev libxxf86vm-dev gcc libc-dev
+      # golangci-lintを使って静的解析を実行
+      - name: Lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+
+      # テスト実行
+      - name: Testing
+        run: go test -v ./...
