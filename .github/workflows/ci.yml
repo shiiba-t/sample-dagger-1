@@ -5,7 +5,7 @@ on:
   # メインブランチへプッシュしたときに実行
   push:
     branches:
-      - main
+      - master
   # プルリクエストした時に実行
   pull_request:
 
