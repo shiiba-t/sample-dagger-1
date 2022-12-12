@@ -39,17 +39,21 @@ func build(ctx context.Context) error {
 	golang = golang.WithExec([]string{"golangci-lint", "run", "./..."})
 	golang = golang.WithExec([]string{"go", "test", "-v", "./..."})
 
-	path := "./build"
-	golang = golang.WithExec([]string{"go", "build", "-o", path})
+	// path := "./build"
+	// golang = golang.WithExec([]string{"go", "build", "-o", path})
 
 	// コンテナ内のbuildディレクトリへの参照を取得
-	output := golang.Directory(path)
-
-	// コンテナからホストへbuildディレクトリの内容を書き込む
-	_, err = output.Export(ctx, path)
+	output, err := golang.Stderr(ctx)
 	if err != nil {
 		return err
 	}
+	fmt.Printf("%s\n", output)
+
+	// コンテナからホストへbuildディレクトリの内容を書き込む
+	// _, err = output.Export(ctx, path)
+	// if err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
